@@ -1,4 +1,6 @@
-let modalqtd = 1
+let cart = []
+let modalQtd = 1
+let modalKey = 0
 const singleItem = (el) => document.querySelector(el)
 const allItem = (el) => document.querySelectorAll(el)
 
@@ -16,7 +18,8 @@ pizzaJson.map((item, index) => {
   pizzaItem.querySelector('a').addEventListener('click', (e) => {
     e.preventDefault()
     let key = e.target.closest('.pizza-item').getAttribute('data-key')
-    modalqtd = 1
+    modalQtd = 1
+    modalKey = key
 
     singleItem('.pizzaBig img').src = pizzaJson[key].img
     singleItem('.pizza-info h1').innerHTML = pizzaJson[key].name
@@ -34,9 +37,10 @@ pizzaJson.map((item, index) => {
 
 
 
-    singleItem('.pizza-info--qt').innerHTML = modalqtd
+    singleItem('.pizza-info--qt').innerHTML = modalQtd
+
     singleItem('.pizza-info--qtmenos').addEventListener('click', () => {
-      modalqtd + modalqtd
+      modalQtd + modalQtd
     })
 
     singleItem('.pizza-modal').style.opacity = 0
@@ -70,3 +74,45 @@ singleItem('.pizza-info--cancelButton').addEventListener('click', closeModal)
 allItem('.pizza-info--cancelButton,.pizza-info--cancelMobileButton').forEach((item) => {
   item.addEventListener('click', closeModal)
 })
+
+singleItem('.pizza-info--qtmenos').addEventListener('click', () => {
+  if (modalQtd > 1) {
+    modalQtd--;
+
+    singleItem('.pizza-info--qt').innerHTML = modalQtd
+  }
+})
+singleItem('.pizza-info--qtmais').addEventListener('click', () => {
+  modalQtd++;
+  singleItem('.pizza-info--qt').innerHTML = modalQtd
+})
+
+allItem('.pizza-info--size').forEach((size, sizeIndex) => {
+  size.addEventListener('click', (e) => {
+    singleItem('.pizza-info--size.selected').classList.remove('selected')
+    size.classList.add('selected')
+  })
+})
+
+singleItem('.pizza-info--addButton').addEventListener('click', () => {
+  let size = parseInt(singleItem('.pizza-info--size.selected').getAttribute('data-key'))
+
+  let identifier = pizzaJson[modalKey].id + '@' + size
+
+  let key = cart.findIndex((item) => item.identifier === identifier
+  )
+  if (key > -1) {
+    cart[key].qtd += modalQtd
+  } else {
+    cart.push({
+      identifier,
+      id: pizzaJson[modalKey].id,
+      size,
+      qtd: modalQtd
+    })
+  }
+
+  console.log(cart)
+  closeModal()
+})
+
